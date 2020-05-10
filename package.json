@@ -1,0 +1,46 @@
+{
+  "name": "msg-parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "del-cli dist",
+    "lint": "tslint --project tsconfig.json",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
+    "build:tsc": "tsc",
+    "build": "npm-run-all clean test lint build:tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ifedoroff/msg-parser-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ifedoroff/msg-parser-js/issues"
+  },
+  "homepage": "https://github.com/ifedoroff/msg-parser-js#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
+    "@types/chai": "^4.2.11",
+    "@types/core-js": "^2.5.3",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.11.0",
+    "chai": "^4.2.0",
+    "del-cli": "^3.0.0",
+    "mocha": "^7.1.1",
+    "npm-run-all": "^4.1.5",
+    "ts-mockito": "^2.5.0",
+    "ts-node": "^8.8.1",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "compound-binary-file-js": "^1.0.7",
+    "pure-uuid": "^1.6.0"
+  }
+}
