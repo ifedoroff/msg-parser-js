@@ -3,13 +3,14 @@ import {StorageDirectoryEntry, StreamDirectoryEntry} from "compound-binary-file-
 import {PropertiesStream} from "./property/PropertiesStream";
 import {SimplePropertiesStream} from "./property/SimplePropertiesStream";
 import {InternalStorage} from "./InternalStorage";
+import {NamedPropertyMappingStorage} from "./nameid_mapping/NamedPropertyMappingStorage";
 
 export class EmbeddedMessage extends MessageStorage {
 
     public static readonly ATTACH_METHOD_CUSTOM = 0x0006;
 
-    constructor(directoryEntry: StorageDirectoryEntry) {
-        super(directoryEntry);
+    constructor(directoryEntry: StorageDirectoryEntry, namedPropertyMappingStorage: NamedPropertyMappingStorage) {
+        super(directoryEntry, namedPropertyMappingStorage);
     }
 
     protected createPropertiesStream(stream: StreamDirectoryEntry): PropertiesStream {
@@ -17,7 +18,7 @@ export class EmbeddedMessage extends MessageStorage {
     }
 
     internalStorage(): InternalStorage {
-        return new InternalStorage(this.storage.findChild(directoryEntry => directoryEntry.getDirectoryEntryName() === MessageStorage.INTERNAL_STORAGE_NAME));
+        return new InternalStorage(this.storage.findChild(directoryEntry => directoryEntry.getDirectoryEntryName() === MessageStorage.INTERNAL_STORAGE_NAME), this.namedPropertyMappingStorage);
     }
 
 }

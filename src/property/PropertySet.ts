@@ -47,7 +47,12 @@ export class PropertySet {
     };
 
     static forUUID(uuid: UUID): PropertySet {
-        return PropertySet.PROPERTY_SETS[uuid.toString()];
+        const uuidAsString = uuid.toString().toUpperCase();
+        let propertySet = PropertySet.PROPERTY_SETS[uuidAsString];
+        if(propertySet === undefined) {
+            propertySet = new PropertySet(uuidAsString, uuid);
+        }
+        return propertySet;
     }
 
     public readonly id: UUID;

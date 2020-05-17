@@ -10,7 +10,12 @@ export class PtypInteger64 extends PropertyType<Long> {
     }
 
     resolveValue(container: MessageStorage, propertyTag: PropertyTag): Long {
-        return Long.fromBytesLE(container.propertiesStream().properties().find(propertyInfo => PropertyTag.equal(propertyInfo.propertyTag(), propertyTag)).data());
+        const property = container.propertiesStream().properties().find(propertyInfo => PropertyTag.equal(propertyInfo.propertyTag(), propertyTag));
+        if(property === undefined) {
+            return undefined;
+        } else {
+            return Long.fromBytesLE(property.data());
+        }
     }
 
 }

@@ -5,10 +5,11 @@ import {PropertyType} from "./property/property_type/PropertyType";
 import {SimplePropertiesStream} from "./property/SimplePropertiesStream";
 import {propertyTypeForId} from "./property/property_type/PropertyTypes";
 import {PidTagAttachDataBinary} from "./property/KnownProperties";
+import {NamedPropertyMappingStorage} from "./nameid_mapping/NamedPropertyMappingStorage";
 
 export class Attachment extends MessageStorage {
-    constructor(directoryEntry: StorageDirectoryEntry) {
-        super(directoryEntry);
+    constructor(directoryEntry: StorageDirectoryEntry, namedPropertyMappingStorage: NamedPropertyMappingStorage) {
+        super(directoryEntry, namedPropertyMappingStorage);
     }
 
     protected createPropertiesStream(stream: StreamDirectoryEntry): PropertiesStream {
@@ -16,7 +17,7 @@ export class Attachment extends MessageStorage {
     }
 
     content(): number[] {
-        return propertyTypeForId<PropertyType<number[]>>(PidTagAttachDataBinary.propertyType).resolveValue(this, PidTagAttachDataBinary);
+        return PidTagAttachDataBinary.propertyType.resolveValue(this, PidTagAttachDataBinary);
     }
 
 }

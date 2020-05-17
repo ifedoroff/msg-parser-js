@@ -9,6 +9,9 @@ import {Entry} from "./Entry";
 import {GUIDStream} from "./GuidStream";
 import {EntryStream} from "./EntryStream";
 import {StringStream} from "./StringStream";
+import {PropertySet} from "../property/PropertySet";
+import {toHex} from "../utils";
+import {UnsupportedPropertyType} from "../property/property_type/UnsupportedPropertyType";
 
 export class NamedPropertyMappingStorage {
 
@@ -24,32 +27,32 @@ export class NamedPropertyMappingStorage {
     getPropertyNameByPropertyTag(propertyTag: PropertyTag): string {
         const entry = this.entryStream().getEntry(propertyTag.propertyId - NamedPropertyMappingStorage.NAMED_PROPERTY_ID_BASE);
         if(entry.isNumeric()) {
-            return String(entry.getPropertyNameIdentifierOrOffsetOrChecksum());
+            return toHex(entry.getPropertyNameIdentifierOrOffsetOrChecksum());
         } else {
             return entry.getPropertyName(this.stringStream());
         }
     }
 
-    getPropertyTagByPropertyName(propertyNameString: PropertyNameString): PropertyTag {
-        const crcOrPropertyIdentifier = CRC.crc32(toUTF16Bytes(propertyNameString.propertyName));
-        const propertyTag = this.getPropertyTagForNamedProperty(crcOrPropertyIdentifier, propertyNameString.propertySet.id, propertyNameString.propertyType);
-        if(propertyTag == null) {
-            throw new Error("Unable to find property: " + propertyNameString.propertyName);
+    getPropertyIdByPropertyName(propertyName: PropertyNameString|PropertyNameLID): number {
+        if(propertyName instanceof PropertyNameString) {
+            const crcOrPropertyIdentifier = CRC.crc32(toUTF16Bytes(propertyName.propertyName));
+            const propertyTag = this.getPropertyIdForNamedProperty(crcOrPropertyIdentifier, propertyName.propertySet.id);
+            if (propertyTag == null) {
+                throw new Error("Unable to find property: " + propertyName.propertyName);
+            } else {
+                return propertyTag;
+            }
         } else {
-            return propertyTag;
+            const propertyTag = this.getPropertyIdForNamedProperty(propertyName.propertyLID, propertyName.propertySet.id);
+            if(propertyTag == null) {
+                throw new Error("Unable to find property: " + propertyName.propertyLID);
+            } else {
+                return propertyTag;
+            }
         }
     }
 
-    getPropertyTagByPropertyNameLID(propertyNameLID: PropertyNameLID): PropertyTag {
-        const propertyTag = this.getPropertyTagForNamedProperty(propertyNameLID.propertyLID, propertyNameLID.propertySet.id, propertyNameLID.propertyType);
-        if(propertyTag == null) {
-            throw new Error("Unable to find property: " + propertyNameLID.propertyLID);
-        } else {
-            return propertyTag;
-        }
-    }
-
-    private getPropertyTagForNamedProperty(crcOrPropertyIdentifier: number, propertySetGuid: UUID, propertyType: number): PropertyTag {
+    private getPropertyIdForNamedProperty(crcOrPropertyIdentifier: number, propertySetGuid: UUID): number {
         const guidIndex = this.guidStream().getIndexFor(propertySetGuid);
         const streamId = 0x1000 + (crcOrPropertyIdentifier ^ ((guidIndex << 1) | 1)) % 0x1F;
         const hexIdentifier = streamId << 16 | 0x00000102;
@@ -58,21 +61,35 @@ export class NamedPropertyMappingStorage {
         for(let i = 0; i < namesStream.getStreamSize() / 8; i++) {
             const entry = new Entry(namesStream.read(i * 8,(i + 1) * 8));
             if(entry.getPropertyNameIdentifierOrOffsetOrChecksum() === crcOrPropertyIdentifier) {
-                return new PropertyTag(0x8000 + entry.getPropertyIndex(), propertyType);
+                return 0x8000 + entry.getPropertyIndex();
             }
         }
         return null;
     }
 
-    private guidStream(): GUIDStream {
+    guidStream(): GUIDStream {
         return new GUIDStream(this.storage.findChild(directoryEntry => directoryEntry.getDirectoryEntryName() === GUIDStream.STREAM_NAME));
     }
 
-    private entryStream(): EntryStream {
+    entryStream(): EntryStream {
         return new EntryStream(this.storage.findChild(directoryEntry => directoryEntry.getDirectoryEntryName() === EntryStream.STREAM_NAME));
     }
 
-    private stringStream(): StringStream {
+    propertyNames(): (PropertyNameLID|PropertyNameString)[] {
+        const result: (PropertyNameLID|PropertyNameString)[] = [];
+        this.entryStream().entries().forEach(entry => {
+            const propertySet = PropertySet.forUUID(entry.getGuid(this.guidStream()));
+            if (entry.isNumeric()) {
+                result.push(new PropertyNameLID(propertySet, entry.getPropertyNameIdentifierOrOffsetOrChecksum(),  new UnsupportedPropertyType(-1, "Unknown")));
+            } else {
+                const propertyName = this.stringStream().getPropertyNameAt(entry.getPropertyNameIdentifierOrOffsetOrChecksum());
+                result.push(new PropertyNameString(propertySet, propertyName, new UnsupportedPropertyType(-1, "Unknown")));
+            }
+        });
+        return result;
+    }
+
+    stringStream(): StringStream {
         return new StringStream(this.storage.findChild(directoryEntry => directoryEntry.getDirectoryEntryName() === StringStream.STREAM_NAME));
     }
 }

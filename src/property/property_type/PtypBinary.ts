@@ -10,9 +10,13 @@ export class PtypBinary extends PropertyType<number[]>{
     }
     resolveValue(container: MessageStorage, propertyTag: PropertyTag): number[] {
         const property = container.propertiesStream().getProperty(propertyTag);
-        const size = Long.fromBytesLE(property.data().slice(0,4)).toNumber();
-        const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
-        return valueStream.read(0, size);
+        if(property === undefined) {
+            return undefined;
+        } else {
+            const size = Long.fromBytesLE(property.data().slice(0, 4)).toNumber();
+            const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
+            return valueStream.read(0, size);
+        }
     }
 
 }

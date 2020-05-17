@@ -11,7 +11,12 @@ export class PtypGuid extends PropertyType<UUID>{
     }
     resolveValue(container: MessageStorage, propertyTag: PropertyTag): UUID {
         const streamName = MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString();
-        return uuidFromByteLE(container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName().toUpperCase() === streamName.toUpperCase()).read(0, 16));
+        const stream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName().toUpperCase() === streamName.toUpperCase());
+        if(stream === undefined) {
+            return undefined;
+        } else {
+            return uuidFromByteLE(stream.read(0, 16));
+        }
     }
 
 }

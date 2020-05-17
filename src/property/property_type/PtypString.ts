@@ -12,9 +12,13 @@ export class PtypString extends PropertyType<string>{
 
     resolveValue(container: MessageStorage, propertyTag: PropertyTag): string {
         const property = container.propertiesStream().getProperty(propertyTag);
-        const size = Long.fromBytesLE(property.data().slice(0,4)).toNumber() - 2;
-        const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
-        return toUTF16WithNoTrailingZeros(valueStream.read(0, size));
+        if(property === undefined) {
+            return undefined;
+        } else {
+            const size = Long.fromBytesLE(property.data().slice(0, 4)).toNumber() - 2;
+            const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
+            return toUTF16WithNoTrailingZeros(valueStream.read(0, size));
+        }
     }
 
 }

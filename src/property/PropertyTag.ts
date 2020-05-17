@@ -1,16 +1,17 @@
 import {NamedPropertyMappingStorage} from "../nameid_mapping/NamedPropertyMappingStorage";
 import Long from "long";
 import {toHex} from "../utils";
+import {PropertyType} from "./property_type/PropertyType";
 
 export class PropertyTag {
 
     public static readonly MV_PROPERTY_TYPE_BASE = 0x1000;
     public readonly propertyId: number;
-    public readonly propertyType: number;
+    public readonly propertyType: PropertyType<any>;
 
-    constructor(propertyId: number, propertyTypeId: number) {
+    constructor(propertyId: number, propertyType: PropertyType<any>) {
         this.propertyId = propertyId;
-        this.propertyType = propertyTypeId;
+        this.propertyType = propertyType;
     }
 
     isNamed(): boolean {
@@ -18,7 +19,7 @@ export class PropertyTag {
     }
 
     isMultiValued(): boolean {
-        return (this.propertyType & PropertyTag.MV_PROPERTY_TYPE_BASE) === PropertyTag.MV_PROPERTY_TYPE_BASE;
+        return (this.propertyType.id & PropertyTag.MV_PROPERTY_TYPE_BASE) === PropertyTag.MV_PROPERTY_TYPE_BASE;
     }
 
     static equal(tag1: PropertyTag, tag2:PropertyTag): boolean {
@@ -26,12 +27,12 @@ export class PropertyTag {
             return false;
         } else {
             return tag1.propertyId === tag2.propertyId &&
-                tag1.propertyType === tag2.propertyType;
+                tag1.propertyType.id === tag2.propertyType.id;
         }
     }
 
     toString(): any {
-        return toHex(this.propertyId).toUpperCase() + toHex(this.propertyType).toUpperCase();
+        return toHex(this.propertyId).toUpperCase() + toHex(this.propertyType.id).toUpperCase();
     }
 
 

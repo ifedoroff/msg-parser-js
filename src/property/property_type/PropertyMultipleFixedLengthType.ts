@@ -13,11 +13,15 @@ export abstract class PropertyMultipleFixedLengthType<U> extends PropertyMultipl
 
     resolveValue(container: MessageStorage, propertyTag: PropertyTag): U[] {
         const stream = container.findByName(MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString());
-        const result = [];
-        for(let i = 0; i < stream.getStreamSize() / this.valueLength; i++) {
-            result.push(this.resolveSingleValue(stream.read(i * this.valueLength, (i + 1) * this.valueLength)));
+        if(stream === undefined) {
+            return [];
+        } else {
+            const result = [];
+            for (let i = 0; i < stream.getStreamSize() / this.valueLength; i++) {
+                result.push(this.resolveSingleValue(stream.read(i * this.valueLength, (i + 1) * this.valueLength)));
+            }
+            return result;
         }
-        return result;
     }
 
     protected abstract resolveSingleValue(bytes: number[]): U;

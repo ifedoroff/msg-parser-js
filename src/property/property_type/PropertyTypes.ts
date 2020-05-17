@@ -32,7 +32,7 @@ interface PropertyTypes<T extends PropertyType<any>> {
     [key: number]: T;
 }
 
-const PROPERTY_TYPES:PropertyTypes<any> = {
+export const PROPERTY_TYPES:PropertyTypes<any> = {
     0x0002: new PtypInteger16(),
     0x0003: new PtypInteger32(),
     0x0004: new PtypFloating32(),

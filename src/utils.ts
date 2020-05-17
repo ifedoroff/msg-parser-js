@@ -36,7 +36,8 @@ export function toTime(bytes: number[]): Date {
     return new Date(Long.fromBytesLE(bytes).toNumber() / 10000 - DIFF_BETWEEN_EPOCHS_1970_1601);
 }
 
-export function toHex(val: number) {
-    const result = Long.fromValue(val).toString(16);
-    return "0".repeat(4 - result.length) + result;
+export function toHex(val: number, toUpper?: boolean) {
+    let result = Long.fromValue(val).toString(16);
+    result = "0".repeat(4 - result.length) + result;
+    return toUpper ? result.toUpperCase() : result;
 }

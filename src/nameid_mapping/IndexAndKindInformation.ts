@@ -12,7 +12,7 @@ export class IndexAndKindInformation {
     private readonly propertyKind: PropertyKind;
 
     constructor(bytes: number[]) {
-        this.propertyIndex = Long.fromBytesLE(bytes.slice( 2, 4)).toNumber();
+        this.propertyIndex = Long.fromBytesLE(bytes.slice(2, 4)).toNumber();
         this.bytes = bytes;
         const twoTrailingBytesArray = bytes.slice(0, 2);
         const twoTrailingBytes = Long.fromBytesLE(twoTrailingBytesArray).toNumber();

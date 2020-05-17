@@ -4,7 +4,8 @@ import {CompoundFile} from "compound-binary-file-js";
 import {Msg} from "../src/Msg";
 import {PidTagAttachFilename, PidTagSubject} from "../src/property/KnownProperties";
 import * as os from "os";
-import {propertyTypeForId} from "../src/property/property_type/PropertyTypes";
+import {toHex} from "../src/utils";
+import {PropertyNameLID} from "../src";
 
 describe('usage example', () => {
    it('extract attachments from an email', () => {
@@ -14,15 +15,19 @@ describe('usage example', () => {
             msg.attachments()
                 .forEach(attachment => {
                     let subject = "";
-                    let fileNameProperty = attachment.propertiesStream().findProperty(PidTagAttachFilename);
+                    let fileNameProperty = attachment.getProperty(PidTagAttachFilename);
                     if(!!fileNameProperty) {
-                        subject = propertyTypeForId(PidTagAttachFilename.propertyType).resolveValue(attachment, PidTagAttachFilename);
+                        subject = attachment.getProperty(PidTagAttachFilename);
                     } else {
                         subject = "Untitled";
                     }
 
-                    const outputFileName = path.join(os.tmpdir(), subject.replace("[\\/:]", "_"));
+                    const outputFolder = path.join(os.tmpdir(), "test_msg_parser");
+                    const outputFileName = path.join(outputFolder, subject.replace("[\\/:]", "_"));
                     console.log(outputFileName);
+                    if(!fs.existsSync(outputFolder)) {
+                        fs.mkdirSync(outputFolder);
+                    }
                     fs.writeFile(outputFileName, new Uint8Array(attachment.content()), () => {
 
                     });
@@ -39,24 +44,47 @@ describe('usage example', () => {
                     const internalStorage = embeddedMessage.internalStorage();
                     let subject = "";
                     if(internalStorage.propertiesStream().findProperty(PidTagSubject) !== undefined) {
-                        subject = propertyTypeForId(PidTagSubject.propertyType).resolveValue(internalStorage, PidTagSubject);
+                        subject = internalStorage.getProperty(PidTagSubject);
                     } else if(embeddedMessage.propertiesStream().findProperty(PidTagAttachFilename) !== undefined) {
-                        subject = propertyTypeForId(PidTagAttachFilename.propertyType).resolveValue(embeddedMessage, PidTagAttachFilename);
+                        subject = embeddedMessage.getProperty(PidTagAttachFilename);
                     } else {
                         subject = "Untitled";
                     }
 
 
-                    const outputFileName = path.join(os.tmpdir(), subject.replace("[\\/:]", "_") + ".msg");
+                    const outputFolder = path.join(os.tmpdir(), "test_msg_parser");
+                    const outputFileName = path.join(outputFolder, subject.replace("[\\/:]", "_") + ".msg");
                     console.log(outputFileName);
-                    fs.writeFile(outputFileName, new Uint8Array(msg.extractEmbeddedMessage(embeddedMessage)), () => {
-                        fs.readFile(outputFileName, (err, dataCopy) => {
-                            const compoundFile = CompoundFile.fromBytes([].slice.call(new Uint8Array(dataCopy)));
-                            const msg = new Msg(compoundFile);
-                            console.log();
-                        });
+                    if(!fs.existsSync(outputFolder)) {
+                        fs.mkdirSync(outputFolder);
+                    }
+                    fs.writeFile(outputFileName, new Uint8Array(msg.extractEmbeddedMessage(embeddedMessage).asBytes()), () => {
                     });
                 });
         })
     });
+
+    it('traversing all properties available in a storage', () => {
+        fs.readFile(path.join(__dirname, "Top level email.msg"), (err, data) => {
+            const compoundFile = CompoundFile.fromBytes([].slice.call(new Uint8Array(data)));
+            const msg = new Msg(compoundFile);
+
+            msg.propertiesStream().properties().forEach(propertyInfo => console.log((propertyInfo.propertyId() - 0x8000) + ': 0x' + toHex(propertyInfo.propertyId())));
+        })
+    });
+
+    it('traversing available named properties for a MSG file', () => {
+        fs.readFile(path.join(__dirname, "Top level email.msg"), (err, data) => {
+            const compoundFile = CompoundFile.fromBytes([].slice.call(new Uint8Array(data)));
+            const msg = new Msg(compoundFile);
+            let namedPropertyMappingStorage = msg.getNamedPropertyMappingStorage();
+            namedPropertyMappingStorage.propertyNames().forEach(prop => {
+                if(prop instanceof PropertyNameLID) {
+                    console.log(`${prop.propertyLID} / ${prop.propertySet} / ${prop.propertyType.name}`);
+                } else {
+                    console.log(`${prop.propertyName} / ${prop.propertySet} / ${prop.propertyType.name}`);
+                }
+            });
+        })
+    })
 });

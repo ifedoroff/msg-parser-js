@@ -1,5 +1,6 @@
 import * as Long from "long";
 import {PropertyTag} from "./PropertyTag";
+import {propertyTypeForId} from "./property_type/PropertyTypes";
 export class PropertyInfo {
 
     private readonly bytes: number[];
@@ -12,12 +13,12 @@ export class PropertyInfo {
         return Long.fromBytesLE(this.bytes.slice(2, 4)).toNumber();
     }
 
-    propertyType(): number {
+    propertyTypeId(): number {
         return Long.fromBytesLE(this.bytes.slice(0, 2)).toNumber()
     }
 
     propertyTag(): PropertyTag {
-        return new PropertyTag(this.propertyId(), this.propertyType());
+        return new PropertyTag(this.propertyId(), propertyTypeForId(this.propertyTypeId()));
     }
 
     flags(): number {

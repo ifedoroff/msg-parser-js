@@ -8,6 +8,7 @@ import {MessageStorage} from "./MessageStorage";
 import {propertyTypeForId} from "./property/property_type/PropertyTypes";
 import {PropertyType} from "./property/property_type/PropertyType";
 import {PidTagAttachMethod} from "./property/KnownProperties";
+import {PropertyTag} from "./property/PropertyTag";
 
 export class Msg extends AbstractMessage {
 
@@ -16,7 +17,7 @@ export class Msg extends AbstractMessage {
     private compoundFile: CompoundFile;
 
     constructor(compoundFile: CompoundFile) {
-        super(compoundFile.getRootStorage());
+        super(compoundFile.getRootStorage(), Msg.namedPropertyMappingStorage(compoundFile.getRootStorage()));
         this.compoundFile = compoundFile;
     }
 
@@ -25,18 +26,26 @@ export class Msg extends AbstractMessage {
     }
 
     static fromUint8Array(bytes: Uint8Array): Msg {
-        return new Msg(CompoundFile.fromBytes([].slice.call(new Uint8Array(bytes))));
+        return new Msg(CompoundFile.fromUint8Array(new Uint8Array(bytes)));
     }
 
     protected createPropertiesStream(stream: StreamDirectoryEntry): PropertiesStream {
         return new RootStoragePropertyStream(stream);
     }
 
-    protected namedPropertyMappingStorage(): NamedPropertyMappingStorage {
-        return new NamedPropertyMappingStorage(this.underlyingDirectoryEntry().findChild(directoryEntry => directoryEntry.getDirectoryEntryName().toUpperCase() === NamedPropertyMappingStorage.STORAGE_NAME.toUpperCase()));
+    public getNamedPropertyMappingStorage(): NamedPropertyMappingStorage {
+        return Msg.namedPropertyMappingStorage(this.underlyingDirectoryEntry());
     }
 
-    extractEmbeddedMessage(embeddedMessage: EmbeddedMessage): number[] {
+    private static namedPropertyMappingStorage(storageDirectoryEntry: StorageDirectoryEntry): NamedPropertyMappingStorage {
+        return new NamedPropertyMappingStorage(storageDirectoryEntry.findChild(directoryEntry => directoryEntry.getDirectoryEntryName().toUpperCase() === NamedPropertyMappingStorage.STORAGE_NAME.toUpperCase()));
+    }
+
+    asBytes(): number[] {
+        return this.compoundFile.asBytes();
+    }
+
+    extractEmbeddedMessage(embeddedMessage: EmbeddedMessage): Msg {
         const nameidmapping: StorageDirectoryEntry = this.underlyingDirectoryEntry().findChild((directoryEntry => NamedPropertyMappingStorage.STORAGE_NAME.toUpperCase() === directoryEntry.getDirectoryEntryName().toUpperCase()));
         const copy = new CompoundFile();
         const nameidmappingCopy = copy.getRootStorage().addStorage(NamedPropertyMappingStorage.STORAGE_NAME);
@@ -49,7 +58,7 @@ export class Msg extends AbstractMessage {
         adjustedData.push(...initializedWidth(8, 0));
         adjustedData.push(...streamData.slice(24, streamData.length));
         propertiesStream.setStreamData(adjustedData);
-        return copy.asBytes();
+        return new Msg(copy);
     }
 
     private copyConsumer(parent: StorageDirectoryEntry): (p: DirectoryEntry) => void {
@@ -70,13 +79,13 @@ export class Msg extends AbstractMessage {
     }
 
     public embeddedMessages(): EmbeddedMessage[] {
-        return Msg.embeddedMessages(this);
+        return Msg.embeddedMessages(this, this.namedPropertyMappingStorage);
     }
 
-    public static embeddedMessages(messageStorage: MessageStorage): EmbeddedMessage[] {
+    public static embeddedMessages(messageStorage: MessageStorage, namedPropertyMappingStorage: NamedPropertyMappingStorage): EmbeddedMessage[] {
         return messageStorage.underlyingDirectoryEntry().storages().filter(storageDirectoryEntry => storageDirectoryEntry.getDirectoryEntryName().startsWith(MessageStorage.ATTACHMENT_STORAGE_PREFIX))
             .filter(storageDirectoryEntry => storageDirectoryEntry.storages().filter(substorage => substorage.getDirectoryEntryName() === EmbeddedMessage.INTERNAL_STORAGE_NAME).length === 1)
-            .map(directoryEntry => new EmbeddedMessage(directoryEntry))
-            .filter(embeddedMsg => propertyTypeForId<PropertyType<any>>(PidTagAttachMethod.propertyType).resolveValue(embeddedMsg, PidTagAttachMethod) !== EmbeddedMessage.ATTACH_METHOD_CUSTOM);
+            .map(directoryEntry => new EmbeddedMessage(directoryEntry, namedPropertyMappingStorage))
+            .filter(embeddedMsg => PidTagAttachMethod.propertyType.resolveValue(embeddedMsg, PidTagAttachMethod) !== EmbeddedMessage.ATTACH_METHOD_CUSTOM);
     }
 }

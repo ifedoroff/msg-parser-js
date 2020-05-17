@@ -14,4 +14,12 @@ export class EntryStream {
         return new Entry(this.stream.read(index * 8, (index + 1) * 8));
     }
 
+    entries(): Entry[] {
+        const entries: Entry[] = [];
+        for (let i = 0; i < this.stream.getStreamSize() / 8; i++) {
+            entries.push(this.getEntry(i));
+        }
+        return entries;
+    }
+
 }

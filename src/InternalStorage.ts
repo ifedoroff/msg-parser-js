@@ -4,11 +4,12 @@ import {AbstractMessage} from "./AbstractMessage";
 import {SimplePropertiesStream} from "./property/SimplePropertiesStream";
 import {EmbeddedMessage} from "./EmbeddedMessage";
 import {Msg} from "./Msg";
+import {NamedPropertyMappingStorage} from "./nameid_mapping/NamedPropertyMappingStorage";
 
 export class InternalStorage extends AbstractMessage {
 
-    constructor(directoryEntry: StorageDirectoryEntry) {
-        super(directoryEntry);
+    constructor(directoryEntry: StorageDirectoryEntry, namedPropertyMappingStorage: NamedPropertyMappingStorage) {
+        super(directoryEntry, namedPropertyMappingStorage);
     }
 
     protected createPropertiesStream(stream: StreamDirectoryEntry): PropertiesStream {
@@ -17,7 +18,7 @@ export class InternalStorage extends AbstractMessage {
 
 
     public embeddedMessages(): EmbeddedMessage[] {
-        return Msg.embeddedMessages(this);
+        return Msg.embeddedMessages(this, this.namedPropertyMappingStorage);
     }
 
 }

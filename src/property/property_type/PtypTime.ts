@@ -10,7 +10,12 @@ export class PtypTime extends PropertyType<Date> {
     }
 
     resolveValue(container: MessageStorage, propertyTag: PropertyTag): Date {
-        return toTime(container.propertiesStream().properties().find(propertyInfo => PropertyTag.equal(propertyInfo.propertyTag(), propertyTag)).data());
+        const property = container.propertiesStream().properties().find(propertyInfo => PropertyTag.equal(propertyInfo.propertyTag(), propertyTag));
+        if(property === undefined) {
+            return undefined;
+        } else {
+            return toTime(property.data());
+        }
     }
 
 }
