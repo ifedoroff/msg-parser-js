@@ -41,7 +41,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "compound-binary-file-js": "^1.0.8",
+    "compound-binary-file-js": "^1.0.9",
     "pure-uuid": "^1.6.0"
   }
 }
