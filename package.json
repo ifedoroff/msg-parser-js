@@ -1,6 +1,6 @@
 {
   "name": "msg-parser",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,7 +41,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "compound-binary-file-js": "^1.0.9",
+    "compound-binary-file-js": "^1.0.10",
     "pure-uuid": "^1.6.0"
   }
 }
