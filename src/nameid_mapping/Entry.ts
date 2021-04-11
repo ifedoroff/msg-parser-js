@@ -3,6 +3,7 @@ import * as Long from "long"
 import {StringStream} from "./StringStream";
 import UUID from "pure-uuid";
 import {GUIDStream} from "./GuidStream";
+import {PropertySet} from "../property/PropertySet";
 
 export class Entry {
     private readonly bytes: number[];
@@ -23,8 +24,19 @@ export class Entry {
         return this.idOrOffset;
     }
 
+    /**
+     * @deprecated The method should not be used
+     */
     getGuid(guidStream: GUIDStream): UUID {
         return guidStream.getGuidAt(this.indexAndKindInformation.getGuidIndex());
+    }
+
+    getPropertySetGuid(guidStream: GUIDStream): UUID {
+        return guidStream.getGuidAt(this.indexAndKindInformation.getGuidIndex());
+    }
+
+    getPropertySet(guidStream: GUIDStream): PropertySet {
+        return PropertySet.forUUID(this.getPropertySetGuid(guidStream));
     }
 
     getPropertyIndex(): number {

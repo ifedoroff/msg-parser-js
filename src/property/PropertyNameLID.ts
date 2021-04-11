@@ -15,6 +15,6 @@ export class PropertyNameLID {
     }
 
     toString(): string {
-        return `0x${toHex(this.propertyLID, true)} (prop set: ${this.propertySet})`
+        return `0x${toHex(this.propertyLID, true, 4)} (prop set: ${this.propertySet})`
     }
 }

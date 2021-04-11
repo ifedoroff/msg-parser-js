@@ -1,3 +1,5 @@
+import Long from "long";
+
 export class CRC {
 
     private static readonly CRC_32_TABLE =
@@ -57,13 +59,14 @@ export class CRC {
         ];
 
     static crc32(bytes: number[]) {
-        let c = 0;
+        let c = Long.UZERO;
         let tableIndex = 0;
         for (const byte of bytes) {
-            tableIndex = ((c ^ byte) & 0xFF);
-            c = CRC.CRC_32_TABLE[tableIndex] ^ (c >>> 8);
+            tableIndex = c.xor(byte).and(0xFF).toNumber();
+            c = c.shiftRightUnsigned(8).xor(CRC.CRC_32_TABLE[tableIndex]);
         }
-        return c;
+
+        return c.toNumber();
     }
 
 }

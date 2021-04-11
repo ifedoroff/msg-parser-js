@@ -35,22 +35,4 @@ export class PropertyTag {
         return toHex(this.propertyId).toUpperCase() + toHex(this.propertyType.id).toUpperCase();
     }
 
-
-// public boolean equals(Object o) {
-//     if (this == o) return true;
-//     if (o == null || getClass() != o.getClass()) return false;
-//     PropertyTag that = (PropertyTag) o;
-//     return propertyId == that.propertyId &&
-//         propertyType == that.propertyType;
-// }
-//
-// @Override
-// public String toString() {
-//     return Utils.toHex(Utils.toBytesLE(propertyId, 2)).toUpperCase() + Utils.toHex(Utils.toBytesLE(propertyType, 2)).toUpperCase();
-// }
-//
-// @Override
-// public int hashCode() {
-//     return Objects.hash(propertyId, propertyType);
-// }
 }
