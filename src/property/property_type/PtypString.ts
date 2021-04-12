@@ -16,8 +16,12 @@ export class PtypString extends PropertyType<string>{
             return undefined;
         } else {
             const size = Long.fromBytesLE(property.data().slice(0, 4)).toNumber() - 2;
-            const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
-            return toUTF16WithNoTrailingZeros(valueStream.read(0, size));
+            if(size === 0) {
+                return "";
+            } else {
+                const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
+                return toUTF16WithNoTrailingZeros(valueStream.read(0, size));
+            }
         }
     }
 

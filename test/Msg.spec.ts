@@ -8,7 +8,7 @@ import {toHex} from "../src/utils";
 describe('test retrieval of Named Properties', () => {
     it('property name by property id retrieval should match property id by property name retrieval', () => {
         // const data = fs.readFileSync(path.join(__dirname, "Top level email.msg"));
-        const data = fs.readFileSync(path.join("c:\\Users\\Ilya Fedorov\\Downloads\\test emails\\", "test Doc Export Email Doc-01.msg"));
+        const data = fs.readFileSync(path.join(__dirname, "Top level email.msg"));
         const compoundFile = CompoundFile.fromBytes([].slice.call(new Uint8Array(data)));
         const msg = new Msg(compoundFile);
         var namedPropertyMappingStorage = msg.getNamedPropertyMappingStorage();
