@@ -7,7 +7,7 @@ import {toUTF16WithNoTrailingZeros} from "compound-binary-file-js";
 export class PtypString8 extends PropertyType<string>{
 
     constructor() {
-        super(0x001F, "PtypString");
+        super(0x001E, "PtypString8");
     }
 
     resolveValue(container: MessageStorage, propertyTag: PropertyTag): string {
