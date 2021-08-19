@@ -65,7 +65,7 @@ describe('usage example', () => {
     });
 
     it('traversing all properties available in a storage', () => {
-        const data = fs.readFileSync(path.join('c:\\Users\\Ilya Fedorov\\Downloads\\test emails\\', "github_issue_10.msg"));
+        const data = fs.readFileSync(path.join(__dirname, "Top level email.msg"));
         const compoundFile = CompoundFile.fromBytes([].slice.call(new Uint8Array(data)));
         const msg = new Msg(compoundFile);
 
