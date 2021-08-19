@@ -5,8 +5,7 @@ import {Msg} from "../src/Msg";
 import {PidTagAttachFilename, PidTagSubject} from "../src/property/KnownProperties";
 import * as os from "os";
 import {toHex} from "../src/utils";
-import {PropertyNameLID} from "../src";
-import {PROPERTY_TYPES, PropertyInfo, PropertyTag, PtypString8} from "../dist";
+import {PropertyNameLID, PtypString8} from "../src";
 
 describe('usage example', () => {
    it('extract attachments from an email', () => {
