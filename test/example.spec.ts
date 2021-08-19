@@ -72,8 +72,9 @@ describe('usage example', () => {
 
         // msg.propertiesStream().properties().forEach(propertyInfo => console.log((propertyInfo.propertyId() - 0x8000) + ': 0x' + toHex(propertyInfo.propertyId())));
         // Print property values
-        msg.propertiesStream().properties().filter(propertyInfo => propertyInfo.propertyTag().propertyType.id === new PtypString8().id)
+        msg.propertiesStream().properties()
             .forEach(propertyInfo => console.log(propertyInfo.propertyTag() + ": " + msg.getProperty(propertyInfo.propertyTag())));
+
     });
 
     it('traversing available named properties for a MSG file', () => {
