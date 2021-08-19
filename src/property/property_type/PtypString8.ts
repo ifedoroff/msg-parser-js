@@ -16,7 +16,7 @@ export class PtypString8 extends PropertyType<string>{
             return undefined;
         } else {
             const size = Long.fromBytesLE(property.data().slice(0, 4)).toNumber() - 1;
-            const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName().toUpperCase() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
+            const valueStream = container.streams().find(streamDirectoryEntry => streamDirectoryEntry.getDirectoryEntryName() === MessageStorage.VALUE_STREAM_PREFIX + propertyTag.toString().toUpperCase());
             return toUTF16WithNoTrailingZeros(valueStream.read(0, size));
         }
     }
