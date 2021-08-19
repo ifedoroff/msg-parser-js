@@ -6,6 +6,7 @@ import {PidTagAttachFilename, PidTagSubject} from "../src/property/KnownProperti
 import * as os from "os";
 import {toHex} from "../src/utils";
 import {PropertyNameLID} from "../src";
+import {PROPERTY_TYPES, PropertyInfo, PropertyTag, PtypString8} from "../dist";
 
 describe('usage example', () => {
    it('extract attachments from an email', () => {
@@ -65,12 +66,15 @@ describe('usage example', () => {
     });
 
     it('traversing all properties available in a storage', () => {
-        fs.readFile(path.join(__dirname, "Top level email.msg"), (err, data) => {
-            const compoundFile = CompoundFile.fromBytes([].slice.call(new Uint8Array(data)));
-            const msg = new Msg(compoundFile);
+        const data = fs.readFileSync(path.join('c:\\Users\\Ilya Fedorov\\Downloads\\test emails\\', "github_issue_10.msg"));
+        const compoundFile = CompoundFile.fromBytes([].slice.call(new Uint8Array(data)));
+        const msg = new Msg(compoundFile);
 
-            msg.propertiesStream().properties().forEach(propertyInfo => console.log((propertyInfo.propertyId() - 0x8000) + ': 0x' + toHex(propertyInfo.propertyId())));
-        })
+
+        // msg.propertiesStream().properties().forEach(propertyInfo => console.log((propertyInfo.propertyId() - 0x8000) + ': 0x' + toHex(propertyInfo.propertyId())));
+        // Print property values
+        msg.propertiesStream().properties().filter(propertyInfo => propertyInfo.propertyTag().propertyType.id === new PtypString8().id)
+            .forEach(propertyInfo => console.log(propertyInfo.propertyTag() + ": " + msg.getProperty(propertyInfo.propertyTag())));
     });
 
     it('traversing available named properties for a MSG file', () => {
